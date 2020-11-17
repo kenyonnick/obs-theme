@@ -6,8 +6,8 @@ let fontLight;
 var borderWidth = 480;
 var borderHeight = 270;
 
-var borderThickness = 16;
-var shadowThickness = 16;
+var borderThickness = 8;
+var shadowThickness = 8;
 
 function preload() {
     fontRegular = loadFont("../../fonts/Lato-Regular.ttf");
@@ -39,21 +39,22 @@ function draw() {
     var offset = 40;
     var blurbHeight = 50;
 
-    var rightControllerTextBox = new TextBox("Right Controller", offset - shadowThickness, height - blurbHeight, barWidth, blurbHeight);
+    var rightControllerTextBox = new TextBox("Right Controller", offset - shadowThickness, height - blurbHeight, barWidth, blurbHeight, shadowThickness);
     rightControllerTextBox.render();
 
-    var leftControllerTextBox = new TextBox("Left Controller", width - offset - barWidth - shadowThickness * 2, height - blurbHeight, barWidth, blurbHeight);
+    var leftControllerTextBox = new TextBox("Left Controller", width - offset - barWidth - shadowThickness * 2, height - blurbHeight, barWidth, blurbHeight, shadowThickness);
     leftControllerTextBox.render();
 
 }
 
 class TextBox {
-    constructor(text, x, y, w, h) {
+    constructor(text, x, y, w, h, shadowThickness) {
         this.text = text;
         this.x = x;
         this.y = y;
         this.width = w;
         this.height = h;
+        this.shadowThickness = shadowThickness;
     }
 
     render() {
@@ -64,10 +65,10 @@ class TextBox {
         rect(this.x, this.y, this.width, this.height);
 
         fill(255 * 0.75, 0, 255 * 0.75);
-        rect(this.x + this.width, this.y, 15, this.height);
+        rect(this.x + this.width, this.y, this.shadowThickness, this.height);
 
         // Text
-        fill(255, 255, 255);
+        fill(0);
         textAlign(CENTER, CENTER);
         textSize(22);
         textFont(fontRegular);

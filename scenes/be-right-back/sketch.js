@@ -18,7 +18,7 @@ function setup() {
 function draw() {
     progression += (1 + 1 / random(1, 100)) * 0.001;
 
-    background(0, 255, 255);
+    background(0, 0, 0);
 
     brbMessage.update(progression);
     networkGraph.update(progression);
@@ -54,7 +54,7 @@ class NetworkGraph {
 
     render() {
         noFill();
-        stroke(255, 0, 255);
+        stroke(0, 255, 255);
         sphere(this.size);
     }
 
@@ -89,7 +89,7 @@ class BRBMessage {
     }
 
     render() {
-        fill(0, 0, 0);
+        fill(255, 0, 255);
         textFont(myFont);
         textSize(128);
         textAlign(CENTER, CENTER);
