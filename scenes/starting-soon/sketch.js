@@ -23,7 +23,7 @@ function draw() {
     background(0, 0, 0);
 
     let targetHour = 19; // 07:00:00 PM
-    let targetMinute = 35;
+    let targetMinute = 30;
     let targetSecond = 0;
     let targetTimeInSeconds = (targetHour * 60 + targetMinute) * 60 + targetSecond;
     let currentTimeInSeconds = (hour() * 60 + minute()) * 60 + second();

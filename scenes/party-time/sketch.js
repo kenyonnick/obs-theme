@@ -11,14 +11,17 @@ function setup() {
 }
 
 function draw() {
+    clear();
+    noStroke();
     time += deltaTime;
     if(time > 2000/bps) {
         time = 0;
         if(flip){
-            background('rgba(255,0,255, 0.25)');
+            fill('rgba(255,0,255, 0.25)');
         } else {
-            background('rgba(0,255,255, 0.25)');
+            fill('rgba(0,255,255, 0.25)');
         }
         flip = !flip;
     }
+    rect(0,0,1920, 1080);
 }
