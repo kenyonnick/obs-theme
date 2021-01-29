@@ -1,0 +1,38 @@
+:root {
+    --alpha-color: #0ff;
+    --beta-color: #f0f;
+    --min-border-glow-size: 16px;
+    --max-border-glow-size: 24px;
+}
+
+body {
+    background-color: rgba(0, 0, 0, 0.0f);
+    width: 480px;
+    height: 270px;
+    animation-name: border-glow-rotation;
+    animation-duration: 15s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes border-glow-rotation {
+    0% {
+        border-color: var(--alpha-color);
+        box-shadow: 0px 0px var(--min-border-glow-size) var(--alpha-color);
+    }
+    25% {
+        border-color: var(--alpha-color);
+        box-shadow: 0px 0px var(--max-border-glow-size) var(--alpha-color);
+    }
+    50% {
+        border-color: var(--beta-color);
+        box-shadow: 0px 0px var(--min-border-glow-size) var(--beta-color);
+    }
+    75% {
+        border-color: var(--beta-color);
+        box-shadow: 0px 0px var(--max-border-glow-size) var(--beta-color);
+    }
+    100% {
+        border-color: var(--alpha-color);
+        box-shadow: 0px 0px var(--min-border-glow-size) var(--alpha-color);
+    }
+}
