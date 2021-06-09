@@ -5,6 +5,11 @@ var countdownText;
 
 let myFont;
 
+let hoursRemaining = 0; // 07:00:00 PM
+let minutesRemaining = 5;
+let secondsRemaining = 0;
+var timeRemainingInMillis = ((hoursRemaining * 60 + minutesRemaining) * 60 + secondsRemaining) * 1000;
+
 function preload() {
     myFont = loadFont("../../fonts/MajorMonoDisplay.ttf");
 }
@@ -13,29 +18,27 @@ function setup() {
     createCanvas(1920, 1080, WEBGL);
     networkGraph = new NetworkGraph(200);
     countdownText = new BRBMessage(createVector(0, 0, -500), createVector(0, 0, 0), "00:05:00", 128);
-    twitterText = new BRBMessage(createVector(650,0,0), createVector(0,0, 0), "Twitter: @radiantgardenrs", 24);
-    instagramText = new BRBMessage(createVector(675,50,0), createVector(0,0, 0), "Instagram: @radiantgardeners", 24);
+    twitterLabelText = new BRBMessage(createVector(650,-100,0), createVector(0,0, 0), "Twitter:", 32);
+    twitterText = new BRBMessage(createVector(650,-50,0), createVector(0,0, 0), "@radiantgardenrs", 32);
+    instagramLabelText = new BRBMessage(createVector(650,50,0), createVector(0,0, 0), "Instagram:", 32);
+    instagramText = new BRBMessage(createVector(650,100,0), createVector(0,0, 0), "@radiantgardeners", 32);
 }
- 
+
 function draw() {
     progression += (1 + 1 / random(1, 100)) * 0.001;
 
     background(0, 0, 0);
 
-    let targetHour = 19; // 07:00:00 PM
-    let targetMinute = 30;
-    let targetSecond = 0;
-    let targetTimeInSeconds = (targetHour * 60 + targetMinute) * 60 + targetSecond;
-    let currentTimeInSeconds = (hour() * 60 + minute()) * 60 + second();
-    let deltaTimeInSeconds = targetTimeInSeconds - currentTimeInSeconds;
-    var timeLeft = new Date(deltaTimeInSeconds * 1000);
-    if(deltaTimeInSeconds >= 0){
-        countdownText.text = timeLeft.toISOString().substr(11,8);
+    if(timeRemainingInMillis >= 0){
+        timeRemainingInMillis -= deltaTime;
+        countdownText.text = new Date(timeRemainingInMillis).toISOString().substr(11,8);
+        countdownText.update(progression);
     }
 
+    twitterLabelText.update(progression);
     twitterText.update(progression);
+    instagramLabelText.update(progression);
     instagramText.update(progression);
-    countdownText.update(progression);
     networkGraph.update(progression);
 }
 
