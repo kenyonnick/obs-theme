@@ -27,7 +27,7 @@ function setup() {
 function draw() {
     progression += (1 + 1 / random(1, 100)) * 0.001;
 
-    background(0, 0, 0);
+    background(0, 0, 0, 0);
 
     if(timeRemainingInMillis >= 0){
         timeRemainingInMillis -= deltaTime;
@@ -35,10 +35,10 @@ function draw() {
         countdownText.update(progression);
     }
 
-    twitterLabelText.update(progression);
-    twitterText.update(progression);
-    instagramLabelText.update(progression);
-    instagramText.update(progression);
+    // twitterLabelText.update(progression);
+    // twitterText.update(progression);
+    // instagramLabelText.update(progression);
+    // instagramText.update(progression);
     networkGraph.update(progression);
 }
 
@@ -101,7 +101,7 @@ class NetworkGraph {
 
     render() {
         noFill();
-        stroke(255, 0, 255);
+        stroke('rgba(0,0,0,0.5)');
         sphere(this.size);
     }
 
@@ -144,7 +144,7 @@ class BRBMessage {
     }
 
     render() {
-        fill(0, 255, 255);
+        fill(0);
         textFont(myFont);
         textSize(this.fontSize);
         textAlign(CENTER, CENTER);
