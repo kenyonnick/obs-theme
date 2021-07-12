@@ -1,14 +1,9 @@
 var progression = 1;
 
 var networkGraph;
-var countdownText;
+var headerText;
 
 let myFont;
-
-let hoursRemaining = 0; // 07:00:00 PM
-let minutesRemaining = 5;
-let secondsRemaining = 0;
-var timeRemainingInMillis = ((hoursRemaining * 60 + minutesRemaining) * 60 + secondsRemaining) * 1000;
 
 function preload() {
     myFont = loadFont("../../fonts/MajorMonoDisplay.ttf");
@@ -17,11 +12,8 @@ function preload() {
 function setup() {
     createCanvas(1920, 1080, WEBGL);
     networkGraph = new NetworkGraph(200);
-    countdownText = new BRBMessage(createVector(0, 0, -500), createVector(0, 0, 0), "00:05:00", 128);
-    twitterLabelText = new BRBMessage(createVector(650,-100,0), createVector(0,0, 0), "Twitter:", 32);
-    twitterText = new BRBMessage(createVector(650,-50,0), createVector(0,0, 0), "@radiantgardenrs", 32);
-    instagramLabelText = new BRBMessage(createVector(650,50,0), createVector(0,0, 0), "Instagram:", 32);
-    instagramText = new BRBMessage(createVector(650,100,0), createVector(0,0, 0), "@radiantgardeners", 32);
+    headerText = new BRBMessage(createVector(0, 0, -500), createVector(0, 0, 0), "Stream Ending", 128);
+
 }
 
 function draw() {
@@ -29,16 +21,7 @@ function draw() {
 
     background(0, 0, 0, 0);
 
-    if(timeRemainingInMillis >= 0){
-        timeRemainingInMillis -= deltaTime;
-        countdownText.text = new Date(timeRemainingInMillis).toISOString().substr(11,8);
-        countdownText.update(progression);
-    }
-
-    // twitterLabelText.update(progression);
-    // twitterText.update(progression);
-    // instagramLabelText.update(progression);
-    // instagramText.update(progression);
+    headerText.update(progression);
     networkGraph.update(progression);
 }
 
@@ -52,7 +35,7 @@ class NetworkGraph {
 
         this.labels = [];
         var subdivisions = 8;
-        var text = "/ STARTING SOON /";
+        var text = "/ TTYL /";
         var textIndex = 0;
         subdivisions *= text.length;
         for(var i = 0; i< subdivisions; i++){
