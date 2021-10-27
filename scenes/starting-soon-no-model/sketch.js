@@ -32,24 +32,24 @@ function draw() {
 
     background(0, 0, 0, 0);
 
-    // if(timeRemainingInMillis >= 0){
-    //     timeRemainingInMillis -= deltaTime;
-    //     countdownText.text = new Date(timeRemainingInMillis).toISOString().substr(11,8);
-    //     countdownText.update(progression);
-    // }
+    if(timeRemainingInMillis >= 0){
+        timeRemainingInMillis -= deltaTime;
+        countdownText.text = new Date(timeRemainingInMillis).toISOString().substr(11,8);
+        countdownText.update(progression);
+    }
 
     // twitterLabelText.update(progression);
     // twitterText.update(progression);
     // instagramLabelText.update(progression);
     // instagramText.update(progression);
-    networkGraph.update(progression);
+    // networkGraph.update(progression);
 }
 
 class NetworkGraph {
 
     constructor(size) {
         this.size = size;
-        this.position = createVector(0, -100, 0);
+        this.position = createVector(0, 0, 0);
         this.scale = createVector(1, 1, 1);
         this.rotation = createVector(radians(23), 1, 0);
 
@@ -89,9 +89,9 @@ class NetworkGraph {
         // render
         this.render();
         
-        // this.labels.forEach((label) => {
-        //     label.update(updates)
-        // });
+        this.labels.forEach((label) => {
+            label.update(updates)
+        });
 
         // clear translation
         
