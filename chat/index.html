@@ -1,0 +1,75 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/comfy.js@latest/dist/comfy.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
+        #chat {
+            font-family: 'Lato', sans-serif;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end;
+            justify-content: flex-end;
+            gap: 1rem;
+            width: 100%;
+            height: 1em;
+            flex-wrap: nowrap;
+            overflow-x: hidden;
+            /* color: white; */
+            padding: 1rem;
+        }
+        #chat>div {
+            min-width: fit-content;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end;
+            justify-content: flex-start;
+            height: 100%;
+            gap: 0.25em;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat">
+    </div>
+</body>
+<script>
+    var chat = document.querySelector("#chat");
+    var messages = [];
+
+    ComfyJS.onChat = (user, message, flags, self, extra) => {
+            var newMessage = document.createElement("div");
+            var newUser = document.createElement("div");
+            var newText = document.createElement("div");
+            newUser.innerText = user + ": ";
+            newUser.style = "color: " + extra.userColor + '; font-weight: 800';
+            
+            newText.innerText = " " + message;
+            newMessage.id = extra.id;
+            messages.push({user, message, flags, self, extra });
+            console.log({ user, message, flags, self, extra });
+
+            newMessage.appendChild(newUser);
+            newMessage.appendChild(newText);
+            chat.append(newMessage);
+    }
+
+    ComfyJS.Init("radiantgardeners");
+
+    setInterval(() => {
+        const cutoff = Date.now() - 60000;
+        const keep = messages.filter((msg) => Number(msg.extra.timestamp) > cutoff);
+        const remove = messages.filter((msg) => Number(msg.extra.timestamp) <  cutoff);
+        remove.forEach((msg) => {
+            const child = document.getElementById(msg.extra.id);
+            child.parentElement.removeChild(child);
+        });
+        messages = keep;
+    })
+</script>
+</html>
