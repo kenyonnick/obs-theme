@@ -9,6 +9,12 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
 
+        body {
+            width: 1920px;
+            height: 1080px;
+            padding: 1rem;
+        }
+
         #chat {
             font-family: 'Lato', sans-serif;
             display: flex;
@@ -20,8 +26,6 @@
             height: 1em;
             flex-wrap: nowrap;
             overflow-x: hidden;
-            /* color: white; */
-            padding: 1rem;
         }
         #chat>div {
             min-width: fit-content;
@@ -41,6 +45,7 @@
 <script>
     var chat = document.querySelector("#chat");
     var messages = [];
+    const messageMax = 25;
 
     ComfyJS.onChat = (user, message, flags, self, extra) => {
             var newMessage = document.createElement("div");
@@ -52,24 +57,21 @@
             newText.innerText = " " + message;
             newMessage.id = extra.id;
             messages.push({user, message, flags, self, extra });
-            console.log({ user, message, flags, self, extra });
+            console.log({ user, message, flags, self, extra }, messages.length);
 
             newMessage.appendChild(newUser);
             newMessage.appendChild(newText);
             chat.append(newMessage);
-    }
+
+            // clean up old messages
+            if(messages.length > messageMax) {
+                const removedMessaged = messages.shift();
+                const child = document.getElementById(removedMessaged.extra.id);
+                console.log('removing element', removedMessaged, child);
+                child.parentElement.removeChild(child);
+            }
+    };
 
     ComfyJS.Init("radiantgardeners");
-
-    setInterval(() => {
-        const cutoff = Date.now() - 60000;
-        const keep = messages.filter((msg) => Number(msg.extra.timestamp) > cutoff);
-        const remove = messages.filter((msg) => Number(msg.extra.timestamp) <  cutoff);
-        remove.forEach((msg) => {
-            const child = document.getElementById(msg.extra.id);
-            child.parentElement.removeChild(child);
-        });
-        messages = keep;
-    })
 </script>
 </html>
