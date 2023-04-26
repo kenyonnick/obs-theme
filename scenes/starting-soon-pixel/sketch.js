@@ -6,12 +6,20 @@ let minutesRemaining = 5;
 let secondsRemaining = 0;
 var timeRemainingInMillis = ((hoursRemaining * 60 + minutesRemaining) * 60 + secondsRemaining) * 1000;
 
+var fontColor = "#ff8377";
+
 function preload() {
     myFont = loadFont("../../fonts/karmatic-arcade/ka1.ttf");
 }
 
 function setup() {
     createCanvas(1920, 1080);
+    let params = getURLParams();
+    console.log(params);
+    if (params.fontColor) {
+        console.log("setting the color to", params.fontColor)
+        fontColor = `#${params.fontColor}`;
+    }
 }
 
 function draw() {
@@ -22,7 +30,7 @@ function draw() {
         timeRemainingInMillis -= deltaTime;
         const countdownString = new Date(timeRemainingInMillis).toISOString().slice(11, 19);
 
-        fill("#ff8377");
+        fill(fontColor);
         noStroke();
         textFont(myFont);
         textSize(fontSize);
