@@ -9,26 +9,28 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
 
-        body {
-            width: 1920px;
-            height: 1080px;
-            padding: 1rem;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        #chat {
+        body {
+            width: 1920px;
+            background-color: transparent;
+            overflow: hidden;
+            height: 48px;
             font-family: 'Lato', sans-serif;
             display: flex;
             flex-direction: row;
-            align-items: flex-end;
+            align-items: center;
             justify-content: flex-end;
             gap: 1rem;
-            width: 100%;
-            min-height: 28px;
-            height: fit-content;
             flex-wrap: nowrap;
             overflow-x: hidden;
         }
-        #chat>div {
+
+        .chatMessage {
             min-width: fit-content;
             display: flex;
             flex-direction: row;
@@ -36,9 +38,17 @@
             justify-content: flex-start;
             height: 100%;
             gap: 0.25em;
-            /* background-color: rgba(128,128,128,0.2);
-            padding: 0.25em 0.5em;
-            border-radius: 0.5em; */
+            background-color: rgba(0,0,0,0.95);
+            color: white;
+            font-weight: 600;
+            padding: 0.5em 1em;
+            border-radius: 2em;
+            border-width: thin;
+            border-style: solid;
+        }
+        .chatMessage>img {
+            height: 100%;
+            width: auto;
         }
     </style>
 </head>
@@ -47,7 +57,7 @@
     </div>
 </body>
 <script>
-    var chat = document.querySelector("#chat");
+    var chat = document.querySelector("body");
     var messages = [];
     const messageMax = 25;
 
@@ -56,8 +66,11 @@
             var newUser = document.createElement("div");
             
             newUser.innerText = user + ": ";
-            newUser.style = "color: " + extra.userColor + '; font-weight: 800';
+            newUser.style = `color: ${extra.userColor}; font-weight: 800;`;
             newMessage.id = extra.id;
+            newMessage.className = 'chatMessage';
+            let style = `border-color: ${extra.userColor};`;
+            newMessage.style = style;
             messages.push({user, message, flags, self, extra });
 
             console.log({ user, message, flags, self, extra }, messages.length, "hasEmotes?", extra.messageEmotes, typeof extra.messageEmotes );
