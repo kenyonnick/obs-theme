@@ -50,6 +50,16 @@
             height: 100%;
             width: auto;
         }
+        .subscriber {
+            background: linear-gradient(45deg, rgba(0,0,0,0.95) 35%, rgba(32, 29, 0, 0.95) 50%, rgba(0,0,0,0.95) 65%);
+            background-size: 200% 200%;
+            animation: subshine 5s ease-in-out infinite;
+        }
+
+        @keyframes subshine {
+            from { background-position: -25% 50%; }
+            to { background-position: 125% 50%; }
+        }
     </style>
 </head>
 <body>
@@ -62,6 +72,11 @@
     const messageMax = 25;
 
     ComfyJS.onChat = (user, message, flags, self, extra) => {
+            if (extra.userId === '100135110') {
+                // Skip messages from StreamElements
+                return;
+            }
+
             var newMessage = document.createElement("div");
             var newUser = document.createElement("div");
             
@@ -69,8 +84,10 @@
             newUser.style = `color: ${extra.userColor}; font-weight: 800;`;
             newMessage.id = extra.id;
             newMessage.className = 'chatMessage';
-            let style = `border-color: ${extra.userColor};`;
-            newMessage.style = style;
+            newMessage.style = `border-color: ${extra.userColor};`;
+            if (flags.subscriber) {
+                newMessage.className += ' subscriber';
+            }
             messages.push({user, message, flags, self, extra });
 
             console.log({ user, message, flags, self, extra }, messages.length, "hasEmotes?", extra.messageEmotes, typeof extra.messageEmotes );
