@@ -77,23 +77,27 @@
 
             newMessage.appendChild(newUser);
 
+            console.log(extra.messageEmotes);
+
             if (extra.messageEmotes) {
                 var lastEndPosition = 0;
                 Object.entries(extra.messageEmotes).forEach(([emoteId, positions]) => {
-                    const [startStr, endStr] = positions[0].split("-");
-                    const emoteStartPos = parseInt(startStr);
-                    const emoteEndPos = parseInt(endStr);
-                    
-                    const textBeforeEmote = document.createElement("span");
-                    textBeforeEmote.innerText = message.slice(lastEndPosition, emoteStartPos);
-                    newMessage.appendChild(textBeforeEmote);
+                    positions.forEach((position) => {
+                        const [startStr, endStr] = position.split("-");
+                        const emoteStartPos = parseInt(startStr);
+                        const emoteEndPos = parseInt(endStr);
+                        
+                        const textBeforeEmote = document.createElement("span");
+                        textBeforeEmote.innerText = message.slice(lastEndPosition, emoteStartPos);
+                        newMessage.appendChild(textBeforeEmote);
 
-                    const emoteImg = document.createElement("img");
-                    emoteImg.src = `https://static-cdn.jtvnw.net/emoticons/v1/${emoteId}/1.0`;
-                    newMessage.appendChild(emoteImg);
-                    lastEndPosition = emoteEndPos + 1;
+                        const emoteImg = document.createElement("img");
+                        emoteImg.src = `https://static-cdn.jtvnw.net/emoticons/v1/${emoteId}/1.0`;
+                        newMessage.appendChild(emoteImg);
+                        lastEndPosition = emoteEndPos + 1;
+                    });
                 });
-                if (lastEndPosition +1 < message.length) {
+                if (lastEndPosition + 1 < message.length) {
                     const textAfterEmotes = document.createElement("span");
                     textAfterEmotes.innerText = message.slice(lastEndPosition);
                     newMessage.appendChild(textAfterEmotes);
