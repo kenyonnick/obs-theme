@@ -1,0 +1,124 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/comfy.js@latest/dist/comfy.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@100&family=VT323&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 1920px;
+            background-color: transparent;
+            overflow: hidden;
+            height: 48px;
+            font-family: 'VT323', monospace;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            overflow-x: hidden;
+        }
+
+        .chatMessage {
+            min-width: fit-content;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100%;
+            gap: 0.25em;
+            color: #0f0;
+            font-weight: 600;
+            padding: 0.25em 0.5em;
+        }
+        .chatMessage>img {
+            height: 100%;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+</body>
+<script>
+    var chat = document.querySelector("body");
+    var messages = [];
+    const messageMax = 25;
+
+    ComfyJS.onChat = (user, message, flags, self, extra) => {
+            if (extra.userId === '100135110') {
+                // Skip messages from StreamElements
+                return;
+            }
+
+            var newMessage = document.createElement("div");
+            var newUser = document.createElement("div");
+            
+            newUser.innerText = user + ": ";
+            // newUser.style = `color: ${extra.userColor}; font-weight: 800;`;
+            newMessage.id = extra.id;
+            newMessage.className = 'chatMessage';
+            // newMessage.style = `border-color: ${extra.userColor};`;
+            if (flags.subscriber) {
+                newMessage.className += ' subscriber';
+            }
+            messages.push({user, message, flags, self, extra });
+
+            console.log({ user, message, flags, self, extra }, messages.length, "hasEmotes?", extra.messageEmotes, typeof extra.messageEmotes );
+
+            newMessage.appendChild(newUser);
+
+            console.log(extra.messageEmotes);
+
+            if (extra.messageEmotes) {
+                var lastEndPosition = 0;
+                Object.entries(extra.messageEmotes).forEach(([emoteId, positions]) => {
+                    positions.forEach((position) => {
+                        const [startStr, endStr] = position.split("-");
+                        const emoteStartPos = parseInt(startStr);
+                        const emoteEndPos = parseInt(endStr);
+                        
+                        const textBeforeEmote = document.createElement("span");
+                        textBeforeEmote.innerText = message.slice(lastEndPosition, emoteStartPos);
+                        newMessage.appendChild(textBeforeEmote);
+
+                        const emoteImg = document.createElement("img");
+                        emoteImg.src = `https://static-cdn.jtvnw.net/emoticons/v1/${emoteId}/1.0`;
+                        newMessage.appendChild(emoteImg);
+                        lastEndPosition = emoteEndPos + 1;
+                    });
+                });
+                if (lastEndPosition + 1 < message.length) {
+                    const textAfterEmotes = document.createElement("span");
+                    textAfterEmotes.innerText = message.slice(lastEndPosition);
+                    newMessage.appendChild(textAfterEmotes);
+                }
+            } else {
+                var newText = document.createElement("div");
+                newText.innerText = " " + message;
+                newMessage.appendChild(newText);
+            }
+
+            chat.insertBefore(newMessage, chat.children[0]);
+
+            // clean up old messages
+            if(messages.length > messageMax) {
+                const removedMessaged = messages.shift();
+                const child = document.getElementById(removedMessaged.extra.id);
+                console.log('removing element', removedMessaged, child);
+                child.parentElement.removeChild(child);
+            }
+    };
+
+    ComfyJS.Init("radiantgardeners");
+</script>
+</html>
