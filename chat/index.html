@@ -63,13 +63,16 @@
     </style>
 </head>
 <body>
-    <div id="chat">
-    </div>
+    <div id="emote-spam"><img id="top-emote"/><span id="emote-count"></span></div>
 </body>
 <script>
     var chat = document.querySelector("body");
     var messages = [];
     const messageMax = 25;
+
+    var emoteSpam = document.getElementById("emote-spam");
+    var mostPopularEmoteId = undefined;
+    var mostPopularEmoteCount = 0;
 
     ComfyJS.onChat = (user, message, flags, self, extra) => {
             if (extra.userId === '100135110') {
@@ -109,7 +112,7 @@
                         newMessage.appendChild(textBeforeEmote);
 
                         const emoteImg = document.createElement("img");
-                        emoteImg.src = `https://static-cdn.jtvnw.net/emoticons/v1/${emoteId}/1.0`;
+                        emoteImg.src = `https://static-cdn.jtvnw.net/emoticons/v2/${emoteId}/default/dark/2.0`;
                         newMessage.appendChild(emoteImg);
                         lastEndPosition = emoteEndPos + 1;
                     });
