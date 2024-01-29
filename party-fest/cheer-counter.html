@@ -1,0 +1,131 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party Fest Cheer Counter</title>
+    <script src="https://cdn.jsdelivr.net/npm/comfy.js@latest/dist/comfy.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: lightgray;
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+        body div {
+            height: 100%;
+            max-width: 100%;
+            transition: width 1s ease-in-out 0.5s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 5%;
+        }
+        body div img {
+            height: 85%;
+            max-width: 240px;
+            max-height: 240px;
+            aspect-ratio: 1;
+        }
+        #green {
+            background-color: #8bfa7f;
+        }
+        #orange {
+            background-color: #fac340;
+        }
+        #purple {
+            background-color: #ca8bff;
+        }
+        #yellow {
+            background-color: #fffb8b;
+        }
+    </style>
+</head>
+<body>
+    <div id="green">
+        <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_ad6e244a8dd54ef3a79a5cb4e5c02f75/default/dark/4.0"/>
+    </div>
+    <div id="orange">
+        <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_8e6a3d297caa4d9f843f9d2ab8a9efb6/default/dark/4.0"/>
+    </div>
+    <div id="purple">
+        <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_ae4a1431eac84bd58c3d73f6e2eaaca0/default/dark/4.0" />
+    </div>
+    <div id="yellow">
+        <img src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_8e5a875050114f429b3477ba7f5f759b/default/dark/4.0"  />
+    </div>
+</body>
+<script>
+    const GREEN_EMOTE_ID = 'emotesv2_ad6e244a8dd54ef3a79a5cb4e5c02f75';
+    const ORANGE_EMOTE_ID = 'emotesv2_8e6a3d297caa4d9f843f9d2ab8a9efb6';
+    const PURPLE_EMOTE_ID = 'emotesv2_ae4a1431eac84bd58c3d73f6e2eaaca0';
+    const YELLOW_EMOTE_ID = 'emotesv2_8e5a875050114f429b3477ba7f5f759b';
+
+    var green = document.getElementById("green");
+    var orange = document.getElementById("orange");
+    var purple = document.getElementById("purple");
+    var yellow = document.getElementById("yellow");
+
+    const db = {
+        [GREEN_EMOTE_ID] : {
+            element: green,
+            count: 1,
+        },
+        [ORANGE_EMOTE_ID] : {
+            element: orange,
+            count: 1,
+        },
+        [PURPLE_EMOTE_ID] : {
+            element: purple,
+            count: 1,
+        },
+        [YELLOW_EMOTE_ID] : {
+            element: yellow,
+            count: 1,
+        },
+    };
+
+    
+
+    function updatePercentages () {
+        const total = Object.values(db).map((entry) => entry.count).reduce((prev, curr) => prev+curr, 0);
+        console.log(total);
+
+        Object.values(db).forEach(({ element, count }) => {
+            const percentage = count / total * 100;
+            console.log({ element, count, total, percentage});
+            element.style = `width: ${percentage}%`;
+        });
+    }
+
+    updatePercentages();
+
+    ComfyJS.onChat = (user, message, flags, self, extra) => {
+            if (extra.userId === '100135110') {
+                // Skip messages from StreamElements
+                return;
+            }
+
+            console.log({ user, message, flags, self, extra }, "hasEmotes?", extra.messageEmotes, typeof extra.messageEmotes );
+
+            console.log(extra.messageEmotes);
+
+            if (extra.messageEmotes) {
+                Object.keys(extra.messageEmotes).forEach((id) => {
+                    db[id].count++;
+                });
+            }
+            updatePercentages();
+    };
+
+    ComfyJS.Init("radiantgardeners");
+</script>
+</html>
