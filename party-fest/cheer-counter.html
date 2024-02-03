@@ -141,7 +141,7 @@
             element.style = `width: ${percentage}%`;
         });
 
-        const sorted = Object.values(db).sort((a, b) => a.count < b.count);
+        const sorted = Object.values(db).sort((a, b) => b.count - a.count);
         sorted.forEach((x, i) => {
             const p = x.element.children[1];
             const lookup = ["1st", "2nd", "3rd", "4th"];
