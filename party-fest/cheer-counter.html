@@ -140,6 +140,7 @@
             console.log({ element, count, total, percentage});
             element.style = `width: ${percentage}%`;
         });
+
         const sorted = Object.values(db).sort((a, b) => a.count < b.count);
         sorted.forEach((x, i) => {
             const p = x.element.children[1];
@@ -147,7 +148,7 @@
             p.innerText = lookup[i];
         })
         console.log(sorted);
-        document.getElementById("debug").innerText = JSON.stringify(db, null, 4);
+        document.getElementById("debug").innerText = JSON.stringify({ db, sorted }, null, 4);
     }
 
     loadDB();
