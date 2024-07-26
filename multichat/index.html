@@ -1,0 +1,164 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/comfy.js@latest/dist/comfy.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 100%;
+            background-color: #111;
+            overflow: hidden;
+            height: 100%;
+            font-family: 'Lato', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-end;
+            gap: 1rem;
+            flex-wrap: nowrap;
+            overflow-x: hidden;
+        }
+
+        .chatMessageContainer {
+            min-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: 0.5em;
+            color: white;
+            font-weight: 600;
+            padding: 0.5em 1em;
+            border-top: thin solid #444;
+            border-bottom: thin solid #444;
+        }
+
+        .chatMessage {
+            display: flex;
+            width: 100%;
+            flex-direction: row;
+            gap: 0.25em;
+            color: white;
+        }
+
+        .channel {
+            color: #bbb;
+        }
+
+        .chatMessage>img {
+            height: 100%;
+            width: auto;
+        }
+
+        @keyframes subshine {
+            from { background-position: -25% 50%; }
+            to { background-position: 125% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="emote-spam"><img id="top-emote"/><span id="emote-count"></span></div>
+</body>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    console.log("search", window.location.search);
+    const channels = window.location.search.slice(1).split('&').map((c) => c.slice(2));
+
+    var chat = document.querySelector("body");
+    var messages = [];
+    const messageMax = 25;
+
+    var emoteSpam = document.getElementById("emote-spam");
+    var mostPopularEmoteId = undefined;
+    var mostPopularEmoteCount = 0;
+
+    ComfyJS.onChat = (user, message, flags, self, extra) => {
+            if (extra.userId === '100135110') {
+                // Skip messages from StreamElements
+                return;
+            }
+
+            var newMessageContainer = document.createElement("div");
+            newMessageContainer.className = 'chatMessageContainer';
+            var newMessage = document.createElement("div");
+            var newUser = document.createElement("div");
+
+            newUser.innerText = user + ": ";
+            newUser.style = `color: ${extra.userColor}; font-weight: 800;`;
+            newMessage.id = extra.id;
+            newMessage.className = 'chatMessage';
+            newMessage.style = `border-color: ${extra.userColor};`;
+            if (flags.subscriber) {
+                newMessage.className += ' subscriber';
+            }
+            messages.push({user, message, flags, self, extra });
+
+            console.log({ user, message, flags, self, extra }, messages.length, "hasEmotes?", extra.messageEmotes, typeof extra.messageEmotes );
+
+            newMessage.appendChild(newUser);
+
+            console.log(extra.messageEmotes);
+
+            if (extra.messageEmotes) {
+                var lastEndPosition = 0;
+                Object.entries(extra.messageEmotes).forEach(([emoteId, positions]) => {
+                    positions.forEach((position) => {
+                        const [startStr, endStr] = position.split("-");
+                        const emoteStartPos = parseInt(startStr);
+                        const emoteEndPos = parseInt(endStr);
+                        
+                        const textBeforeEmote = document.createElement("span");
+                        textBeforeEmote.innerText = message.slice(lastEndPosition, emoteStartPos);
+                        newMessage.appendChild(textBeforeEmote);
+
+                        const emoteImg = document.createElement("img");
+                        emoteImg.src = `https://static-cdn.jtvnw.net/emoticons/v2/${emoteId}/default/dark/2.0`;
+                        newMessage.appendChild(emoteImg);
+                        lastEndPosition = emoteEndPos + 1;
+                    });
+                });
+                if (lastEndPosition + 1 < message.length) {
+                    const textAfterEmotes = document.createElement("span");
+                    textAfterEmotes.innerText = message.slice(lastEndPosition);
+                    newMessage.appendChild(textAfterEmotes);
+                }
+            } else {
+                var newText = document.createElement("div");
+                newText.innerText = " " + message;
+                newMessage.appendChild(newText);
+            }
+
+            var newChannel = document.createElement("div");
+            newChannel.innerText = `[${extra.channel}]`;
+            newChannel.className = "channel";
+
+            newMessageContainer.appendChild(newChannel);
+            newMessageContainer.appendChild(newMessage);
+
+            chat.append(newMessageContainer);
+
+            // clean up old messages
+            if(messages.length > messageMax) {
+                const removedMessaged = messages.shift();
+                const child = document.getElementById(removedMessaged.extra.id);
+                console.log('removing element', removedMessaged, child);
+                child.parentElement.removeChild(child);
+            }
+    };
+
+    channels.forEach((c) => {
+        ComfyJS.Init(c);
+    })
+</script>
+</html>
