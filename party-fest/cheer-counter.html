@@ -82,12 +82,14 @@
     const PURPLE_EMOTE_ID = 'emotesv2_ae4a1431eac84bd58c3d73f6e2eaaca0';
     const YELLOW_EMOTE_ID = 'emotesv2_8e5a875050114f429b3477ba7f5f759b';
 
+    const CHEER_COOLDOWN_MS = 30_000;
+
     var green = document.getElementById("green");
     var orange = document.getElementById("orange");
     var purple = document.getElementById("purple");
     var yellow = document.getElementById("yellow");
 
-    var db = {
+    var teamCountDb = {
         [GREEN_EMOTE_ID] : {
             id: 'green',
             element: green,
@@ -110,67 +112,122 @@
         },
     };
 
+    function initChatter() {
+        return {
+            counts: {
+                [GREEN_EMOTE_ID]: 0,
+                [ORANGE_EMOTE_ID]: 0,
+                [PURPLE_EMOTE_ID]: 0,
+                [YELLOW_EMOTE_ID]: 0,
+            },
+            lastTs: Date.now() - CHEER_COOLDOWN_MS,
+        };
+    }
+
+    var chatterDb = {
+        'radiantgardeners': initChatter(),
+    };
+
     function loadDB() {
-        const stored = localStorage.getItem("PARTY_FEST_COUNT_DB");
-        if(stored) {
-            const parsed = JSON.parse(stored);
+        const storedTeamCounts = localStorage.getItem("PARTY_FEST_COUNT_DB");
+        if(storedTeamCounts) {
+            const parsed = JSON.parse(storedTeamCounts);
             Object.entries(parsed).forEach(([key, value]) => {
-                db[key].count = value.count;
+                teamCountDb[key].count = value.count;
             });
+        }
+
+        const storedChatterData = localStorage.getItem("PARTY_FEST_CHATTER_DB");
+        if(storedChatterData) {
+            chatterDb = JSON.parse(storedChatterData);
         }
     }
 
     function saveDB() {
-        const cleaned = Object.fromEntries(Object.entries(db).map(([key, { id, count }]) => {
+        const cleanedTeamCounts = Object.fromEntries(Object.entries(teamCountDb).map(([key, { id, count }]) => {
             return [key, {
                 id,
                 count,
             }];
         }))
-        localStorage.setItem("PARTY_FEST_COUNT_DB", JSON.stringify(cleaned));
+        localStorage.setItem("PARTY_FEST_COUNT_DB", JSON.stringify(cleanedTeamCounts));
+
+        localStorage.setItem("PARTY_FEST_CHATTER_DB", JSON.stringify(chatterDb));
     }
 
     function updatePercentages () {
-        console.log(db);
-        const total = Object.values(db).map((entry) => entry.count).reduce((prev, curr) => prev+curr, 0);
-        console.log(total);
+        const total = Object.values(teamCountDb).map((entry) => entry.count).reduce((prev, curr) => prev+curr, 0);
 
-        Object.values(db).forEach(({ element, count }) => {
+        Object.values(teamCountDb).forEach(({ element, count }) => {
             const percentage = count / total * 100;
-            console.log({ element, count, total, percentage});
             element.style = `width: ${percentage}%`;
         });
 
-        const sorted = Object.values(db).sort((a, b) => b.count - a.count);
+        const sorted = Object.values(teamCountDb).sort((a, b) => b.count - a.count);
         sorted.forEach((x, i) => {
             const p = x.element.children[1];
             const lookup = ["1st", "2nd", "3rd", "4th"];
             p.innerText = lookup[i];
         })
-        console.log(sorted);
-        document.getElementById("debug").innerText = JSON.stringify({ db, sorted }, null, 4);
+        document.getElementById("debug").innerText = JSON.stringify({ teamCountDb, sorted, chatterDb }, null, 4);
     }
 
     loadDB();
     updatePercentages();
 
     ComfyJS.onChat = (user, message, flags, self, extra) => {
-            if (extra.userId === '100135110') {
-                // Skip messages from StreamElements
-                return;
-            }
+        if (extra.userId === '100135110') {
+            // Skip messages from StreamElements
+            return;
+        }
 
-            console.log({ user, message, flags, self, extra }, "hasEmotes?", extra.messageEmotes, typeof extra.messageEmotes );
+        console.log({ user, message, flags, self, extra }, "hasEmotes?", extra.messageEmotes, typeof extra.messageEmotes);
 
-            console.log(extra.messageEmotes);
+        console.log(extra.messageEmotes);
 
-            if (extra.messageEmotes) {
-                Object.keys(extra.messageEmotes).forEach((id) => {
-                    db[id].count++;
-                });
-            }
-            updatePercentages();
+        if (flags.broadcaster && message.startsWith('adminresetpfcheerpoints')) {
+            teamCountDb[GREEN_EMOTE_ID].count = 1;
+            teamCountDb[ORANGE_EMOTE_ID].count = 1;
+            teamCountDb[PURPLE_EMOTE_ID].count = 1;
+            teamCountDb[YELLOW_EMOTE_ID].count = 1;
             saveDB();
+            console.log('adminresetpfcheerpoints reset the points');
+        }
+
+        // Count the message if the user cheer cooldown is over
+        if (extra.messageEmotes) {
+            // If the user is not in the database, then initialize them
+            if (!chatterDb[user.toLowerCase()]) {
+                chatterDb[user.toLowerCase()] = initChatter();
+            }
+
+            const msgCheerEmoteIds = new Set(Object.keys(extra.messageEmotes).filter((key) => {
+                return key === GREEN_EMOTE_ID || 
+                    key === ORANGE_EMOTE_ID || 
+                    key === PURPLE_EMOTE_ID || 
+                    key === YELLOW_EMOTE_ID;
+            }));
+
+            console.log({ msgCheerEmoteIds });
+
+            if(
+                msgCheerEmoteIds.size > 0
+            ) {
+                let chatter = chatterDb[user.toLowerCase()];
+                const coolMax = Date.now() - CHEER_COOLDOWN_MS;
+                const cooledDown = chatter.lastTs <= coolMax;
+                console.log({ chatter, cooledDown, coolMax });
+                if (chatter.lastTs <= Date.now() - CHEER_COOLDOWN_MS) {
+                    msgCheerEmoteIds.forEach((emoteId) => {
+                        teamCountDb[emoteId].count++;
+                        chatter.counts[emoteId]++;
+                    });
+                    chatter.lastTs = Date.now();
+                }
+            }
+        }
+        updatePercentages();
+        saveDB();
     };
 
     ComfyJS.Init("radiantgardeners");
